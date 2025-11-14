@@ -15,7 +15,7 @@ env:
   # Hostname of your registry
   REGISTRY: docker.io
   # Image repository, without hostname and tag
-  IMAGE_NAME: alpine/minio
+  IMAGE_NAME: bagutzu/minio
   REPO_NAME: minio/minio
   REBUILD: false
   SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
@@ -25,6 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+
+    outputs:
+      build_required: ${{ steps.curl-version.outputs.build_required }}
+      version: ${{ env.VERSION }}
 
     steps:
       # Step to fetch the latest version
@@ -50,6 +54,9 @@ jobs:
     if: needs.check_tag.outputs.build_required == 'true'
     permissions:
       pull-requests: write
+
+    env:
+      VERSION: ${{ needs.check_tag.outputs.version }}
 
     steps:
       - name: Setup Docker buildx
